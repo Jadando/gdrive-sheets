@@ -3,9 +3,11 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
+  CallToolResult,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  Tool
 } from "@modelcontextprotocol/sdk/types.js";
 import fs from "fs";
 import { google } from "googleapis";
@@ -26,6 +28,38 @@ const server = new Server(
     },
   },
 );
+
+const TOOLS: Tool[] = [
+  {
+    name: "search",
+    description: "Search for files in Google Drive",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Search query" },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "append_row_to_sheet",
+    description: "Append a row to a Google Sheets spreadsheet",
+    inputSchema: {
+      type: "object",
+      properties: {
+        spreadsheetId: { type: "string" },
+        range: { type: "string", description: "Ex: Sheet1!A1:D1" },
+        values: {
+          type: "array",
+          items: { type: "string" },
+          description: "Array com os valores da linha (uma string por célula)",
+        },
+      },
+      required: ["spreadsheetId", "range", "values"],
+    },
+  },
+];
+
 
 server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
   const pageSize = 10;
@@ -125,101 +159,69 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   }
 });
 
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return {
-        tools: [
-          {
-            name: "search",
-            description: "Search for files in Google Drive",
-            inputSchema: {
-              type: "object",
-              properties: {
-                query: { type: "string", description: "Search query" },
-              },
-              required: ["query"],
-            },
-          },
-          {
-            name: "append_row_to_sheet",
-            description: "Append a row to a Google Sheets spreadsheet",
-            inputSchema: {
-              type: "object",
-              properties: {
-                spreadsheetId: { type: "string" },
-                range: { type: "string", description: "Ex: Sheet1!A1:D1" },
-                values: {
-                  type: "array",
-                  items: { type: "string" },
-                  description: "Array com os valores da linha (uma string por célula)",
-                },
-              },
-              required: ["spreadsheetId", "range", "values"],
-            },
-          },
-        ],
+async function handleToolCall(name: string, args: any): Promise<CallToolResult> {
+  switch (name) {
+    case "search": {
+      try {
+        const userQuery = args.query as string;
+        const escapedQuery = userQuery.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        const formattedQuery = `fullText contains '${escapedQuery}'`;
+
+        const res = await drive.files.list({
+          q: formattedQuery,
+          pageSize: 10,
+          fields: "files(id, name, mimeType, modifiedTime, size)",
+        });
+
+        const fileList = res.data.files
+          ?.map((file: any) => `${file.name} (${file.mimeType})`)
+          .join("\n");
+
+        return {
+          content: [{
+            type: "text",
+            text: `Found ${res.data.files?.length ?? 0} files:\n${fileList}`,
+          }],
+          isError: false,
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: "Error searching files",
+          }],
+          isError: true,
+        };
+      }
+    }
+
+    default:
+      return {
+        content: [{
+          type: "text",
+          text: `Unknown tool: ${name}`,
+        }],
+        isError: true,
       };
-    });
-
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  if (request.params.name === "search") {
-    const userQuery = request.params.arguments?.query as string;
-    const escapedQuery = userQuery.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-    const formattedQuery = `fullText contains '${escapedQuery}'`;
-
-    const res = await drive.files.list({
-      q: formattedQuery,
-      pageSize: 10,
-      fields: "files(id, name, mimeType, modifiedTime, size)",
-    });
-
-    const fileList = res.data.files
-      ?.map((file: any) => `${file.name} (${file.mimeType})`)
-      .join("\n");
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Found ${res.data.files?.length ?? 0} files:\n${fileList}`,
-        },
-      ],
-      isError: false,
-    };
   }
-  if (request.params.name === "append_row_to_sheet") {
-    const { spreadsheetId, range, values } = request.params.arguments;
-  
-    const sheets = google.sheets({ version: "v4" });
-  
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range,
-      valueInputOption: "RAW",
-      requestBody: {
-        values: [values], // precisa ser array de arrays
-      },
-    });
-  
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Row appended to ${spreadsheetId} in range ${range}`,
-        },
-      ],
-      isError: false,
-    };
-  }
-  throw new Error("Tool not found");
-});
+}
+
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: TOOLS,
+}));
+
+server.setRequestHandler(CallToolRequestSchema, async (request) =>
+  handleToolCall(request.params.name, request.params.arguments ?? {})
+);
 
 const credentialsPath = process.env.GDRIVE_CREDENTIALS_PATH || path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../../token.json" // <-- Aqui está o token gerado via navegador
+  "../token.json" // <-- Aqui está o token gerado via navegador
 );
 
 const oauthKeysPath = process.env.GDRIVE_OAUTH_PATH || path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../../gcp-oauth.keys.json"
+  "../gcp-oauth.keys.json"
 );
 
 // ⚙️ Carrega client_id e client_secret do OAuth
@@ -248,7 +250,7 @@ async function loadCredentialsAndRunServer() {
   google.options({ auth: oAuth2Client });
 
   console.error("✅ Credenciais carregadas. Iniciando servidor...");
-  
+
   const transport = new StdioServerTransport(); // Ajuste conforme seu uso
   await server.connect(transport); // Substitua pela sua função principal
 }
