@@ -9,13 +9,11 @@ import {
   ReadResourceRequestSchema,
   Tool
 } from "@modelcontextprotocol/sdk/types.js";
-import * as dotenv from 'dotenv';
 import fs from "fs";
 import { google } from "googleapis";
 import path from "path";
 import { fileURLToPath } from 'url';
 
-dotenv.config();
 
 const drive = google.drive("v3");
 
