@@ -2,10 +2,12 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import * as dotenv from 'dotenv';
 import fs from "fs";
 import { google } from "googleapis";
 import path from "path";
 import { fileURLToPath } from 'url';
+dotenv.config();
 const drive = google.drive("v3");
 const server = new Server({
     name: "example-servers/gdrive",
@@ -604,8 +606,7 @@ async function loadCredentialsAndRunServer() {
     oAuth2Client.setCredentials(token);
     // Seta o auth global
     google.options({ auth: oAuth2Client });
-    console.log(process.env.GDRIVE_CREDENTIALS_PATH);
-    console.log(process.env.GDRIVE_OAUTH_PATH);
+    console.log("Servidor iniciado");
     const transport = new StdioServerTransport(); // Ajuste conforme seu uso
     await server.connect(transport); // Substitua pela sua função principal
 }
