@@ -164,7 +164,6 @@ const TOOLS = [
         }
     }
 ];
-
 server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
     const pageSize = 10;
     const params = {
@@ -605,7 +604,8 @@ async function loadCredentialsAndRunServer() {
     oAuth2Client.setCredentials(token);
     // Seta o auth global
     google.options({ auth: oAuth2Client });
-    console.error("✅ Credenciais carregadas. Iniciando servidor...");
+    console.log(process.env.GDRIVE_CREDENTIALS_PATH);
+    console.log(process.env.GDRIVE_OAUTH_PATH);
     const transport = new StdioServerTransport(); // Ajuste conforme seu uso
     await server.connect(transport); // Substitua pela sua função principal
 }
