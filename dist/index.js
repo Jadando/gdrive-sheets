@@ -58,20 +58,20 @@ const TOOLS = [
             properties: {
                 title: {
                     type: "string",
-                    description: "Nome da planilha no Google Drive (alternativa ao ID)"
+                    description: "Google Drive Spreadsheet Name (Alternative to ID)"
                 },
                 spreadsheetId: {
                     type: "string",
-                    description: "ID da planilha (caso não informe o título)"
+                    description: "Spreadsheet ID (if you do not provide the title)"
                 },
                 range: {
                     type: "string",
-                    description: "Intervalo A1 (ex: Sheet1!A2:D2)"
+                    description: "Range A1 (ex: Sheet1!A2:D2)"
                 },
                 values: {
                     type: "array",
                     items: { type: "string" },
-                    description: "Valores a serem atualizados (linha única)"
+                    description: "Values ​​to be updated (single line)"
                 }
             },
             required: ["range", "values"]
@@ -79,28 +79,28 @@ const TOOLS = [
     },
     {
         name: "append_google_sheet_row",
-        description: "Adiciona uma nova linha com valores ao final de uma aba em uma planilha do Google Sheets.",
+        description: "Adds a new row with values ​​to the end of a tab in a Google Sheets spreadsheet.",
         inputSchema: {
             type: "object",
             properties: {
                 title: {
                     type: "string",
-                    description: "Nome da planilha no Google Drive (opcional se fornecer o ID)"
+                    description: "Name of the spreadsheet in Google Drive (optional if you provide the ID)"
                 },
                 spreadsheetId: {
                     type: "string",
-                    description: "ID da planilha (opcional se fornecer o título)"
+                    description: "Sheet ID (optional if providing title)"
                 },
                 range: {
                     type: "string",
-                    description: "Intervalo base (ex: Sheet1!A1). A linha será adicionada automaticamente abaixo."
+                    description: "Base range (e.g. Sheet1!A1). The row will be automatically added below."
                 },
                 values: {
                     type: "array",
                     items: {
                         type: "string"
                     },
-                    description: "Valores da nova linha (um por célula)"
+                    description: "New row values ​​(one per cell)"
                 }
             },
             required: ["range", "values"]
@@ -108,25 +108,25 @@ const TOOLS = [
     },
     {
         name: "delete_google_sheet_row",
-        description: "Remove uma linha específica de uma aba em uma planilha do Google Sheets com base na posição (linha).",
+        description: "Removes a specific row from a tab in a Google Sheets spreadsheet based on position (row).",
         inputSchema: {
             type: "object",
             properties: {
                 title: {
                     type: "string",
-                    description: "Nome da planilha no Google Drive (opcional se fornecer o ID)"
+                    description: "Name of the spreadsheet in Google Drive (optional if you provide the ID)"
                 },
                 spreadsheetId: {
                     type: "string",
-                    description: "ID da planilha (opcional se fornecer o título)"
+                    description: "Sheet ID (optional if providing title)"
                 },
                 sheetName: {
                     type: "string",
-                    description: "Nome da aba onde está a linha a ser removida (ex: Sheet1)"
+                    description: "Name of the tab where the row to be removed is located (e.g. Sheet1)"
                 },
                 rowIndex: {
                     type: "number",
-                    description: "Índice da linha a ser deletada (começa do 0)"
+                    description: "Index of the line to be deleted (starts from 0)"
                 }
             },
             required: ["sheetName", "rowIndex"]
@@ -134,30 +134,30 @@ const TOOLS = [
     },
     {
         name: "create_google_sheet",
-        description: "Cria uma nova planilha do Google Sheets com o nome especificado.",
+        description: "Creates a new Google Sheets spreadsheet with the specified name.",
         inputSchema: {
             type: "object",
             properties: {
                 title: {
                     type: "string",
-                    description: "Nome que será dado à nova planilha"
+                    description: "Name that will be given to the new spreadsheet"
                 }
             },
             required: ["title"]
         }
     }, {
         name: "delete_google_drive_file",
-        description: "Deleta um arquivo do Google Drive usando o ID ou o nome exato.",
+        description: "Delete a file from Google Drive using the ID or exact name.",
         inputSchema: {
             type: "object",
             properties: {
                 fileId: {
                     type: "string",
-                    description: "ID do arquivo (opcional se nome for fornecido)"
+                    description: "File ID (optional if name is provided)"
                 },
                 name: {
                     type: "string",
-                    description: "Nome exato do arquivo a ser deletado (usado se fileId não for informado)"
+                    description: "Exact name of the file to be deleted (used if fileId is not given)"
                 }
             },
             required: []
@@ -299,7 +299,7 @@ async function handleToolCall(name, args) {
                         return {
                             content: [{
                                     type: "text",
-                                    text: `❌ Nenhuma planilha encontrada com o nome "${title}".`
+                                    text: `❌ No spreadsheet found with name "${title}".`
                                 }],
                             isError: true
                         };
@@ -318,7 +318,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `✅ Linha adicionada com sucesso à planilha no intervalo "${range}".`
+                            text: `✅ Row successfully added to worksheet in range "${range}".`
                         }],
                     isError: false
                 };
@@ -327,7 +327,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Erro ao tentar adicionar a linha na planilha do Google Sheets."
+                            text: "❌ Error when trying to add row in Google Sheets spreadsheet."
                         }],
                     isError: true
                 };
@@ -342,7 +342,7 @@ async function handleToolCall(name, args) {
                         return {
                             content: [{
                                     type: "text",
-                                    text: `❌ Nenhuma planilha encontrada com o nome "${title}".`
+                                    text: `❌ No spreadsheet found with name "${title}".`
                                 }],
                             isError: true
                         };
@@ -365,7 +365,7 @@ async function handleToolCall(name, args) {
                     return {
                         content: [{
                                 type: "text",
-                                text: "A planilha está vazia ou o intervalo não retornou dados."
+                                text: "The worksheet is empty or the range did not return data."
                             }],
                         isError: false
                     };
@@ -374,7 +374,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `📄 Conteúdo da planilha (${resolvedRange}):\n\n${formatted}`
+                            text: `📄 Spreadsheet content (${resolvedRange}):\n\n${formatted}`
                         }],
                     isError: false
                 };
@@ -383,7 +383,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `❌ Erro ao acessar a planilha do Google Sheets, Erro:${error}`
+                            text: `❌ Error accessing Google Sheets spreadsheet`
                         }],
                     isError: true
                 };
@@ -398,7 +398,7 @@ async function handleToolCall(name, args) {
                         return {
                             content: [{
                                     type: "text",
-                                    text: `❌ Nenhuma planilha encontrada com o nome "${title}".`
+                                    text: `❌ No spreadsheet found with name "${title}".`
                                 }],
                             isError: true
                         };
@@ -416,7 +416,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `✅ Intervalo "${range}" atualizado com sucesso na planilha.`
+                            text: `✅ Range "${range}" successfully updated in spreadsheet.`
                         }],
                     isError: false
                 };
@@ -425,7 +425,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Erro ao tentar atualizar a planilha do Google Sheets."
+                            text: "❌ Error trying to update Google Sheets spreadsheet."
                         }],
                     isError: true
                 };
@@ -440,7 +440,7 @@ async function handleToolCall(name, args) {
                         return {
                             content: [{
                                     type: "text",
-                                    text: `❌ Nenhuma planilha encontrada com o nome "${title}".`
+                                    text: `❌ No spreadsheet found with name "${title}".`
                                 }],
                             isError: true
                         };
@@ -454,7 +454,7 @@ async function handleToolCall(name, args) {
                     return {
                         content: [{
                                 type: "text",
-                                text: `❌ Aba "${sheetName}" não encontrada na planilha.`
+                                text: `❌ Tab "${sheetName}" not found in spreadsheet.`
                             }],
                         isError: true
                     };
@@ -480,7 +480,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `🗑️ Linha ${rowIndex + 1} removida da aba "${sheetName}".`
+                            text: `🗑️ Row ${rowIndex + 1} removed from tab "${sheetName}".`
                         }],
                     isError: false
                 };
@@ -489,35 +489,73 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Erro ao tentar deletar linha da planilha."
+                            text: "❌ Error when trying to delete a row from the spreadsheet."
                         }],
                     isError: true
                 };
             }
         }
+        //Via api google drive
+        // case "create_google_sheet": {
+        //   try {
+        //     const { title } = args;
+        //     const res = await drive.files.create({
+        //       requestBody: {
+        //         name: title,
+        //         mimeType: "application/vnd.google-apps.spreadsheet"
+        //       },
+        //       fields: "id, name"
+        //     });
+        //     return {
+        //       content: [{
+        //         type: "text",
+        //         text: `✅ Spreadsheet "${res.data.name}" created successfully! ID: ${res.data.id}`
+        //       }],
+        //       isError: false
+        //     };
+        //   } catch (error) {
+        //     return {
+        //       content: [{
+        //         type: "text",
+        //         text: `❌ Error trying to create Google Sheets spreadsheet.`
+        //       }],
+        //       isError: true
+        //     };
+        //   }
+        // }
         case "create_google_sheet": {
             try {
                 const { title } = args;
-                const res = await drive.files.create({
+                const sheets = google.sheets({ version: "v4" });
+                const res = await sheets.spreadsheets.create({
                     requestBody: {
-                        name: title,
-                        mimeType: "application/vnd.google-apps.spreadsheet"
-                    },
-                    fields: "id, name"
+                        properties: {
+                            title: title,
+                            locale: "en_US"
+                        },
+                        sheets: [
+                            {
+                                properties: {
+                                    title: "Sheet1"
+                                }
+                            }
+                        ]
+                    }
                 });
                 return {
                     content: [{
                             type: "text",
-                            text: `✅ Planilha "${res.data.name}" criada com sucesso! ID: ${res.data.id}`
+                            text: `✅ Spreadsheet "${res.data.properties?.title}" created successfully! ID: ${res.data.spreadsheetId}`
                         }],
                     isError: false
                 };
             }
             catch (error) {
+                console.error(error); // Boa prática: logar o erro completo para debug
                 return {
                     content: [{
                             type: "text",
-                            text: `❌ Erro ao tentar criar a planilha do Google Sheets. Erro ${error}`
+                            text: "❌ Error trying to create spreadsheet"
                         }],
                     isError: true
                 };
@@ -537,7 +575,7 @@ async function handleToolCall(name, args) {
                         return {
                             content: [{
                                     type: "text",
-                                    text: `❌ Arquivo com nome "${name}" não encontrado.`
+                                    text: `❌ File named "${name}" not found.`
                                 }],
                             isError: true
                         };
@@ -548,7 +586,7 @@ async function handleToolCall(name, args) {
                     return {
                         content: [{
                                 type: "text",
-                                text: "❌ É necessário fornecer o fileId ou o nome do arquivo."
+                                text: "❌ You must provide the fileId or file name."
                             }],
                         isError: true
                     };
@@ -557,7 +595,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `🗑️ Arquivo deletado com sucesso! ID: ${fileId}`
+                            text: `🗑️File deleted successfully! ID: ${fileId}`
                         }],
                     isError: false
                 };
@@ -566,7 +604,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Erro ao tentar deletar o arquivo do Google Drive."
+                            text: "❌ Error trying to delete file from Google Drive."
                         }],
                     isError: true
                 };
