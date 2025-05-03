@@ -100,7 +100,7 @@ const TOOLS = [
                     items: {
                         type: "string"
                     },
-                    description: "New row values ​​(one per cell)"
+                    description: "One or more lines to add (each line is an array of strings)"
                 }
             },
             required: ["range", "values"]
