@@ -356,7 +356,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
           valueInputOption: "RAW",
           insertDataOption: "INSERT_ROWS",
           requestBody: {
-            values: [values]
+            values: values
           }
         });
 
@@ -372,7 +372,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         return {
           content: [{
             type: "text",
-            text: "❌ Error when trying to add row in Google Sheets spreadsheet."
+            text: `❌ Error when trying to add row in Google Sheets spreadsheet. Error:${error}`
           }],
           isError: true
         };
@@ -753,4 +753,4 @@ async function loadCredentialsAndRunServer() {
 }
 
 loadCredentialsAndRunServer().catch(console.error);
-//npx @modelcontextprotocol/inspector dist/index.js  
+//npx -y @modelcontextprotocol/inspector dist/index.js  
