@@ -59,6 +59,10 @@ const TOOLS: Tool[] = [
         range: {
           type: "string",
           description: "Optional A1 range (e.g. Sheet1!A1:D10). If not specified, returns (A1:Z20) content of the first tab."
+        },
+        columnName: {
+          type: "string",
+          description: "Optional header name to return values from a specific column (e.g. 'Phone Number')"
         }
       },
       required: ["title"]
@@ -381,7 +385,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
 
     case "read_sheets": {
       try {
-        let { spreadsheetId, title, range } = args;
+        let { spreadsheetId, title, range, columnName } = args;
 
         if (!spreadsheetId && title) {
           spreadsheetId = await getSpreadsheetIdByTitle(title);
@@ -422,7 +426,26 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
           };
         }
 
-        const formatted = rows.map((row) => row.join(" | ")).join("\n");
+        let formatted
+
+        if (columnName) {
+          const headers = rows[0];
+          const index = headers.indexOf(columnName);
+          if (index === -1) {
+            return {
+              content: [{
+                type: "text",
+                text: `❌ Column "${columnName}" not found in spreadsheet.`
+              }],
+              isError: true
+            };
+          }
+
+          const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
+          formatted = `Coluna "${columnName}":\n` + columnValues.join('\n');
+        } else {
+          formatted = rows.map((row, i) => `${i + 1}: ${row.join(' | ')}`).join('\n');
+        }
 
         return {
           content: [{
@@ -596,25 +619,25 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
     case "create_google_sheet": {
       try {
         const { title } = args;
-    
+
         const sheets = google.sheets({ version: "v4" });
-    
+
         const res = await sheets.spreadsheets.create({
           requestBody: {
             properties: {
               title: title,
-              locale: "en_US" 
+              locale: "en_US"
             },
             sheets: [
               {
                 properties: {
-                  title: "Sheet1" 
+                  title: "Sheet1"
                 }
               }
             ]
           }
         });
-    
+
         return {
           content: [{
             type: "text",
@@ -622,7 +645,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
           }],
           isError: false
         };
-    
+
       } catch (error) {
         console.error(error); // Boa prática: logar o erro completo para debug
         return {
@@ -634,7 +657,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         };
       }
     }
-    
+
 
     case "delete_google_drive_file": {
       try {
