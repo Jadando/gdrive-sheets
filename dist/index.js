@@ -2,6 +2,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { log } from "console";
 import fs from "fs";
 import { google } from "googleapis";
 import path from "path";
@@ -45,6 +46,10 @@ const TOOLS = [
                 range: {
                     type: "string",
                     description: "Optional A1 range (e.g. Sheet1!A1:D10). If not specified, returns (A1:Z20) content of the first tab."
+                },
+                columnName: {
+                    type: "string",
+                    description: "Optional header name to return values from a specific column (e.g. 'Phone Number')"
                 }
             },
             required: ["title"]
@@ -335,7 +340,7 @@ async function handleToolCall(name, args) {
         }
         case "read_sheets": {
             try {
-                let { spreadsheetId, title, range } = args;
+                let { spreadsheetId, title, range, columnName } = args;
                 if (!spreadsheetId && title) {
                     spreadsheetId = await getSpreadsheetIdByTitle(title);
                     if (!spreadsheetId) {
@@ -370,7 +375,26 @@ async function handleToolCall(name, args) {
                         isError: false
                     };
                 }
-                const formatted = rows.map((row) => row.join(" | ")).join("\n");
+                let formatted;
+                log(columnName);
+                if (columnName) {
+                    const headers = rows[0];
+                    const index = headers.indexOf(columnName);
+                    if (index === -1) {
+                        return {
+                            content: [{
+                                    type: "text",
+                                    text: `❌ Column "${columnName}" not found in spreadsheet.`
+                                }],
+                            isError: true
+                        };
+                    }
+                    const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
+                    formatted = `Coluna "${columnName}":\n` + columnValues.join('\n');
+                }
+                else {
+                    formatted = rows.map((row, i) => `${i + 1}: ${row.join(' | ')}`).join('\n');
+                }
                 return {
                     content: [{
                             type: "text",
