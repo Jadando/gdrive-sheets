@@ -442,7 +442,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
           }
 
           const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
-          formatted = `Coluna "${columnName}":\n` + columnValues.join('\n');
+          formatted = JSON.stringify(columnValues, null, 2);
         } else {
           formatted = rows.map((row, i) => `${i + 1}: ${row.join(' | ')}`).join('\n');
         }
