@@ -2,7 +2,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { log } from "console";
 import fs from "fs";
 import { google } from "googleapis";
 import path from "path";
@@ -376,7 +375,6 @@ async function handleToolCall(name, args) {
                     };
                 }
                 let formatted;
-                log(columnName);
                 if (columnName) {
                     const headers = rows[0];
                     const index = headers.indexOf(columnName);
@@ -390,7 +388,8 @@ async function handleToolCall(name, args) {
                         };
                     }
                     const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
-                    formatted = `Coluna "${columnName}":\n` + columnValues.join('\n');
+                    formatted = JSON.stringify(columnValues, null, 2);
+                    // `Coluna "${columnName}":\n` + columnValues.join('\n');
                 }
                 else {
                     formatted = rows.map((row, i) => `${i + 1}: ${row.join(' | ')}`).join('\n');
