@@ -387,9 +387,11 @@ async function handleToolCall(name, args) {
                             isError: true
                         };
                     }
-                    const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
-                    formatted = JSON.stringify(columnValues, null, 2);
-                    // `Coluna "${columnName}":\n` + columnValues.join('\n');
+                    // const columnValues = rows.slice(1).map((row, i) => `${i + 2}: ${row[index] || ''}`);
+                    // formatted = JSON.stringify(columnValues, null, 2);
+                    formatted = rows.slice(1)
+                        .map((row, i) => `${i + 2}:${(row[index] || '').trim()}`)
+                        .join('\n');
                 }
                 else {
                     formatted = rows.map((row, i) => `${i + 1}: ${row.join(' | ')}`).join('\n');
@@ -397,7 +399,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `📄 Spreadsheet content (${resolvedRange}):\n\n${formatted}`
+                            text: `${formatted}`
                         }],
                     isError: false
                 };
