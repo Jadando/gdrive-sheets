@@ -322,7 +322,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: `✅ Row successfully added to worksheet in range "${range}".`
+                            text: `✅ Row successfully added to worksheet in range "${range}" values:"${values}".`
                         }],
                     isError: false
                 };
@@ -580,7 +580,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Error trying to create spreadsheet"
+                            text: `❌ Error trying to create spreadsheet ${error}`
                         }],
                     isError: true
                 };
