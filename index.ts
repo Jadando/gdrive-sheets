@@ -367,7 +367,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         return {
           content: [{
             type: "text",
-            text: `✅ Row successfully added to worksheet in range "${range}".`
+              text: `✅ Row successfully added to worksheet in range "${range}" values:"${values}".`
           }],
           isError: false
         };
