@@ -450,7 +450,7 @@ async function handleToolCall(name, args) {
                 return {
                     content: [{
                             type: "text",
-                            text: "❌ Error trying to update Google Sheets spreadsheet."
+                            text: `❌ Error trying to update Google Sheets spreadsheet. ERROR:${error}`
                         }],
                     isError: true
                 };
