@@ -367,7 +367,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         return {
           content: [{
             type: "text",
-              text: `✅ Row successfully added to worksheet in range "${range}" values:"${values}".`
+            text: `✅ Row successfully added to worksheet in range "${range}" values:"${values}".`
           }],
           isError: false
         };
@@ -508,7 +508,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         return {
           content: [{
             type: "text",
-            text: "❌ Error trying to update Google Sheets spreadsheet."
+            text: `❌ Error trying to update Google Sheets spreadsheet. ERROR:${error}`
           }],
           isError: true
         };
@@ -654,7 +654,7 @@ async function handleToolCall(name: string, args: any): Promise<CallToolResult> 
         return {
           content: [{
             type: "text",
-            text: "❌ Error trying to create spreadsheet"
+            text: `❌ Error trying to create spreadsheet ${error}`
           }],
           isError: true
         };
